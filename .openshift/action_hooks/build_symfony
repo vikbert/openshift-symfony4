@@ -1,0 +1,103 @@
+#!/bin/sh
+
+function install_composer() {
+    local php_bin=${ROOT_DIR}/php5/bin/php
+    local pkg=composer.phar
+
+    mkdir -p ${ROOT_DIR}/.composer
+    mkdir -p ${ROOT_DIR}/bin
+    export COMPOSER_HOME=${ROOT_DIR}/.composer
+
+    pushd ${ROOT_DIR}/bin/
+
+    if [[ ! -e ${pkg} ]]; then
+        echo "Downloading ${pkg}."
+        wget http://getcomposer.org/${pkg}
+        chmod a+x ${pkg}
+    fi
+
+    echo "Updating ${pkg}."
+    ${php_bin} ${pkg} self-update
+
+    popd
+
+    # Setup vendor dir
+    pushd ${OPENSHIFT_REPO_DIR}/
+    echo "Install vendors."
+    ${php_bin} ${ROOT_DIR}/bin/${pkg} -n install -o
+    popd
+}
+
+function install_twig() {
+    local php_bin=${ROOT_DIR}/php5/bin/php
+
+    pushd ${OPENSHIFT_REPO_DIR}/
+
+    # Check twig extension version
+    local pecl_version=`${php_bin} -r "echo phpversion('twig');"`
+    local vendor_version=`${php_bin} -r "require __DIR__.'/vendor/twig/twig/lib/Twig/Environment.php'; echo Twig_Environment::VERSION;"`
+
+    if [[ ${vendor_version} = ${pecl_version} ]]; then
+        echo "Twig extension ${vendor_version} up to date, version: ${pecl_version}."
+        popd
+        return 0
+    fi
+
+    echo "Twig extension not installed or old version."
+
+    pushd vendor/twig/twig/ext/twig/
+
+    echo "Configuring twig extension."
+    ${ROOT_DIR}/php5/bin/phpize -clean
+    ./configure \
+        --with-php-config=${ROOT_DIR}/php5/bin/php-config
+    make
+    make install
+
+    # Copy configuration files
+    local ini=${TEMPLATE_DIR}/pecl/twig.ini.tmpl
+    if [[ -e  ${ini} ]]; then
+        echo "Copy ini for twig extension."
+        yes | cp ${ini} ${ROOT_DIR}/etc/php5/conf.d/twig.ini
+    fi
+
+    popd
+    popd
+}
+
+function symfony_init() {
+    local php_bin=${ROOT_DIR}/php5/bin/php
+    local composer_bin=${ROOT_DIR}/bin/composer.phar
+
+    pushd ${OPENSHIFT_REPO_DIR}/
+
+    # Create cache dir if needed
+    if [ ! -d ${OPENSHIFT_REPO_DIR}/app/cache ]; then
+        mkdir ${OPENSHIFT_REPO_DIR}/app/cache
+    fi
+    chmod -v 777 ${OPENSHIFT_REPO_DIR}/app/cache
+
+    # Create logs dir if needed
+    if [ ! -d ${OPENSHIFT_REPO_DIR}/app/logs ]; then
+        mkdir ${OPENSHIFT_REPO_DIR}/app/logs
+    fi
+    chmod -v 777 ${OPENSHIFT_REPO_DIR}/app/logs
+
+    # Setup cache
+    echo "Application clear cache."
+    ${php_bin} bin/console cache:clear -n --env=prod --no-debug
+
+    # Setup assets/assetic
+    echo "Application setup assets."
+    ${php_bin} bin/console assets:install -n --env=prod --no-debug web
+    #${php_bin} bin/console assetic:dump -n --env=prod --no-debug web
+
+    popd
+}
+
+function check_symfony() {
+    install_composer
+    install_twig
+
+    symfony_init
+}

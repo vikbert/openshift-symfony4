@@ -10,6 +10,6 @@ final class DefaultController
 {
     public function index()
     {
-        return new Response('<h1>Symfony 4 on OpenShift.</h1>', 200);
+        return new Response('<h1>It works</h1><p>A Symfony 4 project deployed on OpenShift.</p>', 200);
     }
 }

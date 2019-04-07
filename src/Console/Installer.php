@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Bin;
+namespace App\Console;
 
 if (!defined('STDIN')) {
     define('STDIN', fopen('php://stdin', 'r'));
@@ -73,6 +73,7 @@ class Installer
     {
         foreach (static::WRITABLE_DIRS as $path) {
             $path = $dir . '/' . $path;
+            $io->write('Path name:  ' . $path);
             if (!file_exists($path)) {
                 mkdir($path);
                 $io->write('Created `' . $path . '` directory');

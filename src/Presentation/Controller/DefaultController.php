@@ -9,7 +9,7 @@ use Symfony\Component\HttpKernel\Kernel;
 
 final class DefaultController
 {
-    public function index()
+    public function index(): Response
     {
         return new Response(sprintf('<h1>Welcome to Symfony %s</h1>', Kernel::VERSION), 200);
     }

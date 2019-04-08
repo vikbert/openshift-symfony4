@@ -2,11 +2,11 @@
   "kind": "Template",
   "apiVersion": "v1",
   "metadata": {
-    "name": "cakephp-example",
+    "name": "symfony-example",
     "annotations": {
       "openshift.io/display-name": "CakePHP",
       "description": "An example CakePHP application with no database. For more information about using this template, including OpenShift considerations, see https://github.com/vikbert/openshift-symfony4.git/blob/master/README.md.",
-      "tags": "quickstart,php,cakephp",
+      "tags": "quickstart,php,symfony",
       "iconClass": "icon-php",
       "openshift.io/long-description": "This template defines resources needed to develop a CakePHP application, including a build configuration and application deployment configuration.  It does not include a database.",
       "openshift.io/provider-display-name": "Red Hat, Inc.",
@@ -17,8 +17,8 @@
   },
   "message": "The following service(s) have been created in your project: ${NAME}.\n\nFor more information about using this template, including OpenShift considerations, see https://github.com/vikbert/openshift-symfony4.git/blob/master/README.md.",
   "labels": {
-      "template": "cakephp-example",
-      "app": "cakephp-example"
+      "template": "symfony-example",
+      "app": "symfony-example"
   },
   "objects": [
     {
@@ -28,8 +28,8 @@
         "name": "${NAME}"
       },
       "stringData" : {
-        "cakephp-secret-token" : "${CAKEPHP_SECRET_TOKEN}",
-        "cakephp-security-salt" : "${CAKEPHP_SECURITY_SALT}"
+        "symfony-secret-token" : "${CAKEPHP_SECRET_TOKEN}",
+        "symfony-security-salt" : "${CAKEPHP_SECURITY_SALT}"
       }
     },
     {
@@ -158,7 +158,7 @@
             "imageChangeParams": {
               "automatic": true,
               "containerNames": [
-                "cakephp-example"
+                "symfony-example"
               ],
               "from": {
                 "kind": "ImageStreamTag",
@@ -184,7 +184,7 @@
           "spec": {
             "containers": [
               {
-                "name": "cakephp-example",
+                "name": "symfony-example",
                 "image": " ",
                 "ports": [
                   {
@@ -215,7 +215,7 @@
                     "valueFrom": {
                       "secretKeyRef" : {
                         "name" : "${NAME}",
-                        "key" : "cakephp-secret-token"
+                        "key" : "symfony-secret-token"
                       }
                     }
                   },
@@ -224,7 +224,7 @@
                     "valueFrom": {
                       "secretKeyRef" : {
                         "name" : "${NAME}",
-                        "key" : "cakephp-security-salt"
+                        "key" : "symfony-security-salt"
                       }
                     }
                   },
@@ -251,7 +251,7 @@
       "displayName": "Name",
       "description": "The name assigned to all of the frontend objects defined in this template.",
       "required": true,
-      "value": "cakephp-example"
+      "value": "symfony-example"
     },
     {
       "name": "NAMESPACE",
@@ -305,14 +305,14 @@
       "from": "[a-zA-Z0-9]{40}"
     },
     {
-      "name": "CAKEPHP_SECRET_TOKEN",
+      "name": "SYMFONY_SECRET_TOKEN",
       "displayName": "CakePHP Secret Token",
       "description": "Set this to a long random string.",
       "generate": "expression",
       "from": "[\\w]{50}"
     },
     {
-      "name": "CAKEPHP_SECURITY_SALT",
+      "name": "SYMFONY_SECURITY_SALT",
       "displayName": "CakePHP Security Salt",
       "description": "Security salt for session hash.",
       "generate": "expression",

@@ -11,6 +11,6 @@ final class DefaultController
 {
     public function index(): Response
     {
-        return new Response(sprintf('<h1>Bar, Welcome to Symfony %s</h1>', Kernel::VERSION), 200);
+        return new Response(sprintf('<h1>Foo, Welcome to Symfony %s</h1>', Kernel::VERSION), 200);
     }
 }
